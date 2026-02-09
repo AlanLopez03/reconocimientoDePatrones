@@ -84,6 +84,5 @@ def wesad_subject_stats(pkl_path: str, out_csv: str = None) -> pd.DataFrame:
     return df
 
 if __name__ == "__main__":
-    # Cambia la ruta a tu S2.pkl
-    wesad_subject_stats("wesad/WESAD/S10/S10.pkl")
+    wesad_subject_stats("wesad/WESAD/S4/S4.pkl")
 
