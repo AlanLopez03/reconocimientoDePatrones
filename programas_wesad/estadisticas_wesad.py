@@ -96,7 +96,7 @@ def plot_histograms_selected(data, subject_name="S?", save_dir=None):
             plt.savefig(out_path, dpi=160)
             print(f"📌 Guardado: {out_path}")
 
-        plt.show()
+
 
     # 1) chest EDA
     try:
@@ -154,7 +154,7 @@ def plot_acc_multichannel(acc_2d, group, subject_name, max_samples=5000, save_pa
         plt.savefig(save_path, dpi=160)
         print(f"📌 Guardado: {save_path}")
 
-    plt.show()
+   # ()
 
 def wesad_subject_stats(pkl_path: str, out_csv: str = None, make_hists=True, save_hists=True) -> pd.DataFrame:
     pkl_path = Path(pkl_path)
@@ -175,7 +175,7 @@ def wesad_subject_stats(pkl_path: str, out_csv: str = None, make_hists=True, sav
     df = pd.DataFrame(all_rows).sort_values(["grupo", "senal", "canal"]).reset_index(drop=True)
 
     if out_csv is None:
-        out_csv = pkl_path.with_name(pkl_path.stem + "_stats.csv")
+        out_csv = pkl_path.with_name(pkl_path.stem + "_stats.csv")#exportar la tabla de estadisticas
 
     df.to_csv(out_csv, index=False)
     print(f"✅ Estadísticas guardadas en: {out_csv}")
@@ -190,4 +190,4 @@ def wesad_subject_stats(pkl_path: str, out_csv: str = None, make_hists=True, sav
     return df
 
 if __name__ == "__main__":
-    wesad_subject_stats("wesad/WESAD/S4/S4.pkl", make_hists=True, save_hists=True)
+    wesad_subject_stats("WESAD/S4/S4.pkl", make_hists=True, save_hists=True)

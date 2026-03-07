@@ -75,4 +75,4 @@ def conduct_wesad_eda(pkl_path):
 # Ejecución
 # conduct_wesad_eda('wesad/WESAD/S2/S2.pkl')
 # Ejemplo de uso (Asegúrate de tener el archivo en la ruta correcta)
-df_final = conduct_wesad_eda('wesad/WESAD/S2/S2.pkl')
+df_final = conduct_wesad_eda('../WESAD/S2/S2.pkl')
