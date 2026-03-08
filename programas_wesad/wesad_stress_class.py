@@ -186,316 +186,318 @@ logo = LeaveOneGroupOut()
 print("\n===== FEATURE STATISTICS (mean / std) =====")
 print(X.describe().T[["mean", "std"]])
 
-# ===================== MODEL EVALUATION HELPER =====================
-def evaluate_model(model, X, y, groups, model_name):
-    acc, f1, mcc, roc = [], [], [], []
-    y_true, y_pred, y_prob = [], [], []
+merged_df.to_csv("wesad_features_extraidas.csv", index=False)
+print("✅ Extracción completada y guardada en 'wesad_features_extraidas.csv'")
+# # # ===================== MODEL EVALUATION HELPER =====================
+# # def evaluate_model(model, X, y, groups, model_name):
+# #     acc, f1, mcc, roc = [], [], [], []
+# #     y_true, y_pred, y_prob = [], [], []
 
-    for tr, te in logo.split(X, y, groups):
-        model.fit(X.iloc[tr], y[tr])
+# #     for tr, te in logo.split(X, y, groups):
+# #         model.fit(X.iloc[tr], y[tr])
 
-        preds = model.predict(X.iloc[te])
-        probs = (
-            model.predict_proba(X.iloc[te])[:, 1]
-            if hasattr(model, "predict_proba")
-            else preds
-        )
+# #         preds = model.predict(X.iloc[te])
+# #         probs = (
+# #             model.predict_proba(X.iloc[te])[:, 1]
+# #             if hasattr(model, "predict_proba")
+# #             else preds
+# #         )
 
-        acc.append(accuracy_score(y[te], preds))
-        f1.append(f1_score(y[te], preds))
-        mcc.append(matthews_corrcoef(y[te], preds))
-        roc.append(roc_auc_score(y[te], probs))
+# #         acc.append(accuracy_score(y[te], preds))
+# #         f1.append(f1_score(y[te], preds))
+# #         mcc.append(matthews_corrcoef(y[te], preds))
+# #         roc.append(roc_auc_score(y[te], probs))
 
-        y_true.extend(y[te])
-        y_pred.extend(preds)
+# #         y_true.extend(y[te])
+# #         y_pred.extend(preds)
 
-    acc_m, acc_s = np.mean(acc), np.std(acc)
-    f1_m = np.mean(f1)
-    mcc_m = np.mean(mcc)
-    roc_m = np.mean(roc)
+# #     acc_m, acc_s = np.mean(acc), np.std(acc)
+# #     f1_m = np.mean(f1)
+# #     mcc_m = np.mean(mcc)
+# #     roc_m = np.mean(roc)
 
-    cm = confusion_matrix(y_true, y_pred)
+# #     cm = confusion_matrix(y_true, y_pred)
 
-    print(f"\n===== {model_name} RESULTS =====")
-    print(f"Accuracy      : {acc_m:.3f} ± {acc_s:.3f}")
-    print(f"F1-score      : {f1_m:.3f}")
-    print(f"MCC           : {mcc_m:.3f}")
-    print(f"ROC-AUC       : {roc_m:.3f}")
+# #     print(f"\n===== {model_name} RESULTS =====")
+# #     print(f"Accuracy      : {acc_m:.3f} ± {acc_s:.3f}")
+# #     print(f"F1-score      : {f1_m:.3f}")
+# #     print(f"MCC           : {mcc_m:.3f}")
+# #     print(f"ROC-AUC       : {roc_m:.3f}")
 
-    sns.heatmap(
-        cm, annot=True, fmt="d", cmap="Blues",
-        xticklabels=["Non-Stress", "Stress"],
-        yticklabels=["Non-Stress", "Stress"]
-    )
-    plt.title(f"{model_name} Confusion Matrix (LOSO)")
-    #plt.show()
-    plt.savefig(f"./imagenes/{model_name}_confusion_matrix.png")
+# #     sns.heatmap(
+# #         cm, annot=True, fmt="d", cmap="Blues",
+# #         xticklabels=["Non-Stress", "Stress"],
+# #         yticklabels=["Non-Stress", "Stress"]
+# #     )
+# #     plt.title(f"{model_name} Confusion Matrix (LOSO)")
+# #     #plt.show()
+# #     plt.savefig(f"./imagenes/{model_name}_confusion_matrix.png")
 
-    return acc_m, acc_s, f1_m, mcc_m, roc_m
+# #     return acc_m, acc_s, f1_m, mcc_m, roc_m
 
 
 
-# ===================== CLASSICAL MODELS =====================
-results = {}
+# # # ===================== CLASSICAL MODELS =====================
+# # results = {}
 
-results["SVM"] = evaluate_model(
-    Pipeline([("scaler", StandardScaler()),
-              ("svm", SVC(kernel="rbf", class_weight="balanced",probability=True))]),
-    X, y, groups, "SVM"
-)
+# # results["SVM"] = evaluate_model(
+# #     Pipeline([("scaler", StandardScaler()),
+# #               ("svm", SVC(kernel="rbf", class_weight="balanced",probability=True))]),
+# #     X, y, groups, "SVM"
+# # )
 
-results["RF"] = evaluate_model(
-    RandomForestClassifier(
-        n_estimators=300,
-        min_samples_leaf=5,
-        class_weight="balanced",
-        random_state=42
-    ),
-    X, y, groups, "Random Forest"
-)
+# # results["RF"] = evaluate_model(
+# #     RandomForestClassifier(
+# #         n_estimators=300,
+# #         min_samples_leaf=5,
+# #         class_weight="balanced",
+# #         random_state=42
+# #     ),
+# #     X, y, groups, "Random Forest"
+# # )
 
-results["XGBoost"] = evaluate_model(
-    XGBClassifier(
-        n_estimators=300,
-        max_depth=4,
-        learning_rate=0.05,
-        subsample=0.8,
-        colsample_bytree=0.8,
-        scale_pos_weight=(y == 0).sum() / (y == 1).sum(),
-        eval_metric="logloss"
-    ),
-    X, y, groups, "XGBoost"
-)
+# # results["XGBoost"] = evaluate_model(
+# #     XGBClassifier(
+# #         n_estimators=300,
+# #         max_depth=4,
+# #         learning_rate=0.05,
+# #         subsample=0.8,
+# #         colsample_bytree=0.8,
+# #         scale_pos_weight=(y == 0).sum() / (y == 1).sum(),
+# #         eval_metric="logloss"
+# #     ),
+# #     X, y, groups, "XGBoost"
+# # )
 
-results["LR"] = evaluate_model(
-    Pipeline([("scaler", StandardScaler()),
-              ("lr", LogisticRegression(
-                  class_weight="balanced",
-                  max_iter=1000))]),
-    X, y, groups, "Logistic Regression"
-)
+# # results["LR"] = evaluate_model(
+# #     Pipeline([("scaler", StandardScaler()),
+# #               ("lr", LogisticRegression(
+# #                   class_weight="balanced",
+# #                   max_iter=1000))]),
+# #     X, y, groups, "Logistic Regression"
+# # )
 
-results["AdaBoost"] = evaluate_model(
-    AdaBoostClassifier(
-        estimator=DecisionTreeClassifier(
-            max_depth=2,
-            min_samples_leaf=5,
-            class_weight="balanced"
-        ),
-        n_estimators=200,
-        learning_rate=0.5
-    ),
-    X, y, groups, "AdaBoost"
-)
+# # results["AdaBoost"] = evaluate_model(
+# #     AdaBoostClassifier(
+# #         estimator=DecisionTreeClassifier(
+# #             max_depth=2,
+# #             min_samples_leaf=5,
+# #             class_weight="balanced"
+# #         ),
+# #         n_estimators=200,
+# #         learning_rate=0.5
+# #     ),
+# #     X, y, groups, "AdaBoost"
+# # )
 
-results["LDA"] = evaluate_model(
-    Pipeline([("scaler", StandardScaler()),
-              ("lda", LinearDiscriminantAnalysis())]),
-    X, y, groups, "LDA"
-)
+# # results["LDA"] = evaluate_model(
+# #     Pipeline([("scaler", StandardScaler()),
+# #               ("lda", LinearDiscriminantAnalysis())]),
+# #     X, y, groups, "LDA"
+# # )
 
-results["KNN"] = evaluate_model(
-    Pipeline([("scaler", StandardScaler()),
-              ("knn", KNeighborsClassifier(
-                  n_neighbors=7,
-                  weights="distance"))]),
-    X, y, groups, "KNN"
-)
+# # results["KNN"] = evaluate_model(
+# #     Pipeline([("scaler", StandardScaler()),
+# #               ("knn", KNeighborsClassifier(
+# #                   n_neighbors=7,
+# #                   weights="distance"))]),
+# #     X, y, groups, "KNN"
+# # )
 
-# ===================== LSTM & CNN DATA =====================
-FEATURE_COLS = X.columns
-X_seq, y_seq, groups_seq = [], [], []
+# # # ===================== LSTM & CNN DATA =====================
+# # FEATURE_COLS = X.columns
+# # X_seq, y_seq, groups_seq = [], [], []
 
-for s in merged_df["Subject"].unique():
-    df_s = merged_df[merged_df["Subject"] == s].sort_values("Time")
-    Xs, ys = df_s[FEATURE_COLS].values, df_s["Label"].values
+# # for s in merged_df["Subject"].unique():
+# #     df_s = merged_df[merged_df["Subject"] == s].sort_values("Time")
+# #     Xs, ys = df_s[FEATURE_COLS].values, df_s["Label"].values
 
-    for i in range(len(df_s) - SEQ_LEN + 1):
-        X_seq.append(Xs[i:i + SEQ_LEN])
-        y_seq.append(ys[i + SEQ_LEN - 1])
-        groups_seq.append(s)
+# #     for i in range(len(df_s) - SEQ_LEN + 1):
+# #         X_seq.append(Xs[i:i + SEQ_LEN])
+# #         y_seq.append(ys[i + SEQ_LEN - 1])
+# #         groups_seq.append(s)
 
-X_seq = np.array(X_seq)
-y_seq = np.array(y_seq)
-groups_seq = np.array(groups_seq)
+# # X_seq = np.array(X_seq)
+# # y_seq = np.array(y_seq)
+# # groups_seq = np.array(groups_seq)
 
-# ===================== DL MODEL EVALUATION HELPER =====================
-def evaluate_dl_model(build_model_fn, X_seq, y_seq, groups_seq, model_name):
-    acc, f1, mcc, roc = [], [], [], []
-    y_true, y_pred, y_prob = [], [], []
+# # # ===================== DL MODEL EVALUATION HELPER =====================
+# # def evaluate_dl_model(build_model_fn, X_seq, y_seq, groups_seq, model_name):
+# #     acc, f1, mcc, roc = [], [], [], []
+# #     y_true, y_pred, y_prob = [], [], []
 
-    for tr, te in logo.split(X_seq, y_seq, groups_seq):
-        model = build_model_fn((X_seq.shape[1], X_seq.shape[2]))
+# #     for tr, te in logo.split(X_seq, y_seq, groups_seq):
+# #         model = build_model_fn((X_seq.shape[1], X_seq.shape[2]))
 
-        model.fit(X_seq[tr], y_seq[tr],
-                  epochs=20, batch_size=16, verbose=0)
+# #         model.fit(X_seq[tr], y_seq[tr],
+# #                   epochs=20, batch_size=16, verbose=0)
 
-        probs = model.predict(X_seq[te]).ravel()
-        preds = (probs >= 0.5).astype(int)
+# #         probs = model.predict(X_seq[te]).ravel()
+# #         preds = (probs >= 0.5).astype(int)
 
-        acc.append(accuracy_score(y_seq[te], preds))
-        f1.append(f1_score(y_seq[te], preds))
-        mcc.append(matthews_corrcoef(y_seq[te], preds))
-        roc.append(roc_auc_score(y_seq[te], probs))
+# #         acc.append(accuracy_score(y_seq[te], preds))
+# #         f1.append(f1_score(y_seq[te], preds))
+# #         mcc.append(matthews_corrcoef(y_seq[te], preds))
+# #         roc.append(roc_auc_score(y_seq[te], probs))
 
-        y_true.extend(y_seq[te])
-        y_pred.extend(preds)
+# #         y_true.extend(y_seq[te])
+# #         y_pred.extend(preds)
 
-    acc_m, acc_s = np.mean(acc), np.std(acc)
+# #     acc_m, acc_s = np.mean(acc), np.std(acc)
 
-    print(f"\n===== {model_name} RESULTS =====")
-    print(f"Accuracy      : {acc_m:.3f} ± {acc_s:.3f}")
-    print(f"F1-score      : {np.mean(f1):.3f}")
-    print(f"MCC           : {np.mean(mcc):.3f}")
-    print(f"ROC-AUC       : {np.mean(roc):.3f}")
+# #     print(f"\n===== {model_name} RESULTS =====")
+# #     print(f"Accuracy      : {acc_m:.3f} ± {acc_s:.3f}")
+# #     print(f"F1-score      : {np.mean(f1):.3f}")
+# #     print(f"MCC           : {np.mean(mcc):.3f}")
+# #     print(f"ROC-AUC       : {np.mean(roc):.3f}")
 
-    cm = confusion_matrix(y_true, y_pred)
-    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
-    plt.title(f"{model_name} Confusion Matrix (LOSO)")
-    #plt.show()
-    plt.savefig(f"./imagenes/{model_name}_confusion_matrix.png")
+# #     cm = confusion_matrix(y_true, y_pred)
+# #     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+# #     plt.title(f"{model_name} Confusion Matrix (LOSO)")
+# #     #plt.show()
+# #     plt.savefig(f"./imagenes/{model_name}_confusion_matrix.png")
 
-    return acc_m, acc_s, np.mean(f1), np.mean(mcc), np.mean(roc)
+# #     return acc_m, acc_s, np.mean(f1), np.mean(mcc), np.mean(roc)
 
     
-def build_lstm(input_shape):
-    model = Sequential([
-        LSTM(32, input_shape=input_shape),
-        Dropout(0.3),
-        Dense(1, activation="sigmoid")
-    ])
+# # def build_lstm(input_shape):
+# #     model = Sequential([
+# #         LSTM(32, input_shape=input_shape),
+# #         Dropout(0.3),
+# #         Dense(1, activation="sigmoid")
+# #     ])
 
-    model.compile(
-        optimizer=Adam(learning_rate=0.001),
-        loss="binary_crossentropy",
-        metrics=["accuracy"]
-    )
-    return model
+# #     model.compile(
+# #         optimizer=Adam(learning_rate=0.001),
+# #         loss="binary_crossentropy",
+# #         metrics=["accuracy"]
+# #     )
+# #     return model
 
-def build_cnn(input_shape):
-    model = Sequential([
-        Conv1D(32, kernel_size=3, activation="relu", input_shape=input_shape),
-        MaxPooling1D(pool_size=2),
-        Dropout(0.3),
-        Flatten(),
-        Dense(32, activation="relu"),
-        Dropout(0.3),
-        Dense(1, activation="sigmoid")
-    ])
+# # def build_cnn(input_shape):
+# #     model = Sequential([
+# #         Conv1D(32, kernel_size=3, activation="relu", input_shape=input_shape),
+# #         MaxPooling1D(pool_size=2),
+# #         Dropout(0.3),
+# #         Flatten(),
+# #         Dense(32, activation="relu"),
+# #         Dropout(0.3),
+# #         Dense(1, activation="sigmoid")
+# #     ])
 
-    model.compile(
-        optimizer=Adam(learning_rate=0.001),
-        loss="binary_crossentropy",
-        metrics=["accuracy"]
-    )
-    return model
+# #     model.compile(
+# #         optimizer=Adam(learning_rate=0.001),
+# #         loss="binary_crossentropy",
+# #         metrics=["accuracy"]
+# #     )
+# #     return model
 
-# ===================== LSTM =====================
-results["LSTM"] = evaluate_dl_model(
-    build_lstm, X_seq, y_seq, groups_seq, "LSTM"
-)
+# # # ===================== LSTM =====================
+# # results["LSTM"] = evaluate_dl_model(
+# #     build_lstm, X_seq, y_seq, groups_seq, "LSTM"
+# # )
 
-# ===================== CNN =====================
-results["CNN"] = evaluate_dl_model(
-    build_cnn, X_seq, y_seq, groups_seq, "CNN (1D)"
-)
+# # # ===================== CNN =====================
+# # results["CNN"] = evaluate_dl_model(
+# #     build_cnn, X_seq, y_seq, groups_seq, "CNN (1D)"
+# # )
 
-# ===================== FINAL COMPARISON PLOT =====================
-print("\n===== FINAL MODEL COMPARISON =====")
-print("Model      | Acc(mean±std) | F1   | MCC  | ROC-AUC")
-print("-" * 55)
+# # # ===================== FINAL COMPARISON PLOT =====================
+# # print("\n===== FINAL MODEL COMPARISON =====")
+# # print("Model      | Acc(mean±std) | F1   | MCC  | ROC-AUC")
+# # print("-" * 55)
 
-for model, (acc_m, acc_s, f1, mcc, roc) in results.items():
-    print(f"{model:10s} | {acc_m:.3f}±{acc_s:.3f} | {f1:.3f} | {mcc:.3f} | {roc:.3f}")
+# # for model, (acc_m, acc_s, f1, mcc, roc) in results.items():
+# #     print(f"{model:10s} | {acc_m:.3f}±{acc_s:.3f} | {f1:.3f} | {mcc:.3f} | {roc:.3f}")
 
-models = list(results.keys())
-f1_vals  = [results[m][2] for m in models]
-mcc_vals = [results[m][3] for m in models]
-roc_vals = [results[m][4] for m in models]
+# # models = list(results.keys())
+# # f1_vals  = [results[m][2] for m in models]
+# # mcc_vals = [results[m][3] for m in models]
+# # roc_vals = [results[m][4] for m in models]
 
-# -------- F1-SCORE PLOT --------
-plt.figure(figsize=(10, 5))
-plt.bar(models, f1_vals)
-plt.ylabel("F1-score (LOSO)")
-plt.title("F1-score Comparison Across Models")
-plt.ylim(0, 1)
-plt.grid(axis="y")
-#plt.show()
-plt.savefig("./imagenes/f1_score_comparison.png")
+# # # -------- F1-SCORE PLOT --------
+# # plt.figure(figsize=(10, 5))
+# # plt.bar(models, f1_vals)
+# # plt.ylabel("F1-score (LOSO)")
+# # plt.title("F1-score Comparison Across Models")
+# # plt.ylim(0, 1)
+# # plt.grid(axis="y")
+# # #plt.show()
+# # plt.savefig("./imagenes/f1_score_comparison.png")
 
-print(
-    "\nF1-score Interpretation:\n"
-    "- F1-score balances Precision and Recall.\n"
-    "- Higher F1 indicates better stress vs non-stress classification,\n"
-    "  especially important for imbalanced datasets.\n"
-    "- Models with low F1 but high accuracy may be biased toward the majority class."
-)
+# # print(
+# #     "\nF1-score Interpretation:\n"
+# #     "- F1-score balances Precision and Recall.\n"
+# #     "- Higher F1 indicates better stress vs non-stress classification,\n"
+# #     "  especially important for imbalanced datasets.\n"
+# #     "- Models with low F1 but high accuracy may be biased toward the majority class."
+# # )
 
-# -------- MCC PLOT --------
-plt.figure(figsize=(10, 5))
-plt.bar(models, mcc_vals)
-plt.ylabel("MCC (LOSO)")
-plt.title("Matthews Correlation Coefficient (MCC) Comparison")
-plt.ylim(-1, 1)
-plt.grid(axis="y")
-#plt.show()
-plt.savefig("./imagenes/mcc_comparison.png")
-print(
-    "\nMCC Interpretation:\n"
-    "- MCC measures overall classification quality using all confusion matrix terms.\n"
-    "- Range: -1 (total disagreement) to +1 (perfect prediction).\n"
-    "- MCC is robust to class imbalance and is one of the most reliable single metrics.\n"
-    "- Higher MCC indicates better generalization across subjects."
-)
+# # # -------- MCC PLOT --------
+# # plt.figure(figsize=(10, 5))
+# # plt.bar(models, mcc_vals)
+# # plt.ylabel("MCC (LOSO)")
+# # plt.title("Matthews Correlation Coefficient (MCC) Comparison")
+# # plt.ylim(-1, 1)
+# # plt.grid(axis="y")
+# # #plt.show()
+# # plt.savefig("./imagenes/mcc_comparison.png")
+# # print(
+# #     "\nMCC Interpretation:\n"
+# #     "- MCC measures overall classification quality using all confusion matrix terms.\n"
+# #     "- Range: -1 (total disagreement) to +1 (perfect prediction).\n"
+# #     "- MCC is robust to class imbalance and is one of the most reliable single metrics.\n"
+# #     "- Higher MCC indicates better generalization across subjects."
+# # )
 
-# -------- ROC-AUC PLOT --------
-plt.figure(figsize=(10, 5))
-plt.bar(models, roc_vals)
-plt.ylabel("ROC-AUC (LOSO)")
-plt.title("ROC-AUC Comparison Across Models")
-plt.ylim(0.5, 1.0)
-plt.grid(axis="y")
-#plt.show()
-plt.savefig("./imagenes/roc_auc_comparison.png")
-print(
-    "\nROC-AUC Interpretation:\n"
-    "- ROC-AUC measures how well a model separates stress vs non-stress classes.\n"
-    "- It is threshold-independent and evaluates ranking quality.\n"
-    "- High ROC-AUC with low F1/MCC may indicate good probability estimates\n"
-    "  but suboptimal decision threshold."
-)
+# # # -------- ROC-AUC PLOT --------
+# # plt.figure(figsize=(10, 5))
+# # plt.bar(models, roc_vals)
+# # plt.ylabel("ROC-AUC (LOSO)")
+# # plt.title("ROC-AUC Comparison Across Models")
+# # plt.ylim(0.5, 1.0)
+# # plt.grid(axis="y")
+# # #plt.show()
+# # plt.savefig("./imagenes/roc_auc_comparison.png")
+# # print(
+# #     "\nROC-AUC Interpretation:\n"
+# #     "- ROC-AUC measures how well a model separates stress vs non-stress classes.\n"
+# #     "- It is threshold-independent and evaluates ranking quality.\n"
+# #     "- High ROC-AUC with low F1/MCC may indicate good probability estimates\n"
+# #     "  but suboptimal decision threshold."
+# # )
 
-# ===================== TOP-3 MODEL SELECTION =====================
+# # # ===================== TOP-3 MODEL SELECTION =====================
 
-# Convert results to DataFrame
-results_df = pd.DataFrame.from_dict(
-    results,
-    orient="index",
-    columns=["Acc_mean", "Acc_std", "F1", "MCC", "ROC_AUC"]
-)
+# # # Convert results to DataFrame
+# # results_df = pd.DataFrame.from_dict(
+# #     results,
+# #     orient="index",
+# #     columns=["Acc_mean", "Acc_std", "F1", "MCC", "ROC_AUC"]
+# # )
 
-# Composite score (weighted)
-results_df["Composite_Score"] = (
-    0.4 * results_df["MCC"] +
-    0.4 * results_df["ROC_AUC"] +
-    0.2 * results_df["F1"]
-)
+# # # Composite score (weighted)
+# # results_df["Composite_Score"] = (
+# #     0.4 * results_df["MCC"] +
+# #     0.4 * results_df["ROC_AUC"] +
+# #     0.2 * results_df["F1"]
+# # )
 
-# Sort models by composite score
-top3_models = results_df.sort_values(
-    by="Composite_Score",
-    ascending=False
-).head(3)
+# # # Sort models by composite score
+# # top3_models = results_df.sort_values(
+# #     by="Composite_Score",
+# #     ascending=False
+# # ).head(3)
 
-print("\n===== TOP 3 BEST MODELS =====")
-print(top3_models[["F1", "MCC", "ROC_AUC", "Composite_Score"]])
-print(
-    "\nInterpretation:\n"
-    "- MCC captures balanced prediction quality even under class imbalance.\n"
-    "- ROC-AUC measures the model’s ability to separate stress vs non-stress across thresholds.\n"
-    "- F1-score reflects the trade-off between precision and recall.\n\n"
-    "The composite score prioritizes robustness (MCC), discriminative power (ROC-AUC), "
-    "and classification balance (F1). Models ranking in the top three show consistent "
-    "performance across subjects, making them reliable for real-world, subject-independent "
-    "stress detection."
-)
+# # print("\n===== TOP 3 BEST MODELS =====")
+# # print(top3_models[["F1", "MCC", "ROC_AUC", "Composite_Score"]])
+# # print(
+# #     "\nInterpretation:\n"
+# #     "- MCC captures balanced prediction quality even under class imbalance.\n"
+# #     "- ROC-AUC measures the model’s ability to separate stress vs non-stress across thresholds.\n"
+# #     "- F1-score reflects the trade-off between precision and recall.\n\n"
+# #     "The composite score prioritizes robustness (MCC), discriminative power (ROC-AUC), "
+# #     "and classification balance (F1). Models ranking in the top three show consistent "
+# #     "performance across subjects, making them reliable for real-world, subject-independent "
+# #     "stress detection."
+# # )
