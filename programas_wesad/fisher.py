@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # ============================================
 # Asegúrate de que la ruta sea correcta en tu PC
 try:
-    datos = pd.read_csv(r'D:\UTM\DECIMO\reconocimiento_de_patrones\parcial2\proyectoFase2\reconocimientoDePatrones\programas_wesad\wesad_preprocesado_listo.csv')
+    datos = pd.read_csv(r'wesad_preprocesado_listo.csv')
 except FileNotFoundError:
     print("Error: No se encontró el archivo CSV en la ruta especificada.")
     exit()
@@ -105,4 +105,5 @@ ax2.grid(axis='x', linestyle='--', alpha=0.6)
 
 # Ajustar diseño y MOSTRAR
 plt.tight_layout()
-plt.show() # <--- ESTA LÍNEA ES VITAL
+#plt.show() # <--- ESTA LÍNEA ES VITAL
+plt.savefig("ranking_fisher.png")

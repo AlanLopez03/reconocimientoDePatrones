@@ -1,3 +1,6 @@
+#ya no usar este archivo, solo es para referencia
+
+
 import pickle
 import numpy as np
 import pandas as pd

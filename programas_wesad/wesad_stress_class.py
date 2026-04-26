@@ -33,7 +33,7 @@ from sklearn.metrics import (
 )
 
 # ===================== CONFIG =====================
-DATA_PATH = "./WESAD"
+DATA_PATH = "../WESAD"
 FS = 700
 
 SUBJECT_IDS = (
