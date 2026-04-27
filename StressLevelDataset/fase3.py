@@ -10,7 +10,9 @@ from plantilla import (
     graficar_ranking
 )
 from sklearn.naive_bayes import GaussianNB
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def preprocesar_datos(df):
     """
@@ -64,9 +66,17 @@ imprimir_resultado(m_nb_full)
 todas_las_metricas.append(m_nb_full)
 
 # Entrenar Árbol
-m_tree_full, _ = entrenar_y_evaluar(DecisionTreeClassifier(random_state=42), "Arbol_Todas", X_train, X_test, y_train, y_test)
+# Se recomienda max_depth para que el grafo sea visible en la presentación
+m_tree_full, modelo_tree_obj = entrenar_y_evaluar(DecisionTreeClassifier(max_depth=3, random_state=42), "Arbol_Todas", X_train, X_test, y_train, y_test)
 imprimir_resultado(m_tree_full)
 todas_las_metricas.append(m_tree_full)
+
+# --- GENERAR GRAFO ÁRBOL ACTIVIDAD 1 ---
+plt.figure(figsize=(20,10))
+plot_tree(modelo_tree_obj, feature_names=X.columns, class_names=['Bajo', 'Medio', 'Alto'], filled=True, rounded=True)
+plt.title("Árbol de Decisión - Todas las características")
+plt.savefig(ruta_resultado("grafo_arbol_todas.png"), dpi=300)
+plt.close()
 
 # Guardar matrices de confusión
 graficar_matriz_confusion(m_nb_full['matriz_confusion'], "Bayes Todas", ruta_resultado("cm_nb_todas.png"))
@@ -96,9 +106,16 @@ imprimir_resultado(m_nb_top)
 todas_las_metricas.append(m_nb_top)
 
 # Árbol con top features
-m_tree_top, _ = entrenar_y_evaluar(DecisionTreeClassifier(random_state=42), "Arbol_Top_IM", X_train_top, X_test_top, y_train_top, y_test_top)
+m_tree_top, modelo_tree_top_obj = entrenar_y_evaluar(DecisionTreeClassifier(random_state=42), "Arbol_Top_IM", X_train_top, X_test_top, y_train_top, y_test_top)
 imprimir_resultado(m_tree_top)
 todas_las_metricas.append(m_tree_top)
+
+# --- GENERAR GRAFO ÁRBOL ACTIVIDAD 2 ---
+plt.figure(figsize=(15,8))
+plot_tree(modelo_tree_top_obj, feature_names=mejores_features, class_names=['Bajo', 'Medio', 'Alto'], filled=True, rounded=True)
+plt.title("Árbol de Decisión - Top 5 Características")
+plt.savefig(ruta_resultado("grafo_arbol_top_im.png"), dpi=300)
+plt.close()
 
 # Guardar matrices
 graficar_matriz_confusion(m_nb_top['matriz_confusion'], "Bayes Top IM", ruta_resultado("cm_nb_top.png"))
