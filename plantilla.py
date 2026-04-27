@@ -21,6 +21,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.tree import plot_tree
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
@@ -96,7 +97,7 @@ def entrenar_y_evaluar(modelo, nombre, X_train, X_test, y_train, y_test, average
         "matriz_confusion": confusion_matrix(y_test, y_pred),
         "reporte": classification_report(y_test, y_pred, zero_division=0),
     }
-    return metricas
+    return metricas, modelo
 
 
 def graficar_matriz_confusion(cm, nombre, ruta_salida, etiquetas=None):
@@ -168,6 +169,23 @@ def ranking_informacion_mutua(X, y, random_state=42):
     scores = mutual_info_classif(X, y, random_state=random_state)
     return pd.Series(scores, index=X.columns).sort_values(ascending=False)
 
+import pandas as pd
+import numpy as np
+
+def ranking_fisher(X, y):
+    clases = np.unique(y)
+    scores = {}
+
+    for col in X.columns:
+        mu1 = X[y == clases[0]][col].mean()
+        mu2 = X[y == clases[1]][col].mean()
+        var1 = X[y == clases[0]][col].var()
+        var2 = X[y == clases[1]][col].var()
+
+        score = (mu1 - mu2)**2 / (var1 + var2)
+        scores[col] = score
+
+    return pd.Series(scores).sort_values(ascending=False)
 
 def graficar_ranking(ranking, titulo, ruta_salida, top_k=None, resaltadas=None):
     """
