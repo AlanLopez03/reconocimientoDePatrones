@@ -33,21 +33,35 @@ resultados.append(metricas_tree)
 
 #guarda el arbol de decision de la tarea 1
 plt.figure(figsize=(12,8))
-plot_tree(modelo_tree, feature_names=X.columns, class_names=True, filled=True)
+plot_tree(modelo_tree, feature_names=X_tr.columns, class_names=True, filled=True)
 plt.title("Árbol de decisión Tarea 1")
 plt.savefig(ruta_resultado("arbol_decision_T1.png"))
 plt.close()
 
 #guarda el bayes ingenuo de la tarea 1
-df_nb = pd.DataFrame(modelo_nb.theta_, columns=X.columns)
+df_nb = pd.DataFrame(modelo_nb.theta_, columns=X_tr.columns)
 df_nb["Clase"] = modelo_nb.classes_
 
-df_nb.to_csv(ruta_resultado("naive_bayes_modelo_T1.csv"), index=False)
 plt.figure(figsize=(10,5))
 sns.heatmap(df_nb.drop("Clase", axis=1), annot=False)
 plt.title("Parámetros Naive Bayes tarea 1")
 plt.savefig(ruta_resultado("naive_bayes_heatmap_T1.png"))
 plt.close()
+
+priors = pd.DataFrame({
+    "Clase": modelo_nb.classes_,
+    "Prior": modelo_nb.class_prior_
+})
+medias = pd.DataFrame(modelo_nb.theta_, columns=X_tr.columns)
+medias["Clase"] = modelo_nb.classes_
+varianzas = pd.DataFrame(modelo_nb.var_, columns=X_tr.columns)
+varianzas["Clase"] = modelo_nb.classes_
+
+with pd.ExcelWriter(ruta_resultado("naive_bayes_modelo1.xlsx")) as writer:
+    priors.to_excel(writer, sheet_name="Priors", index=False)
+    medias.to_excel(writer, sheet_name="Medias", index=False)
+    varianzas.to_excel(writer, sheet_name="Varianzas", index=False)
+
 
 # --- Tarea 2: top-5 por información mutua ---
 ranking = ranking_fisher(X, y)
@@ -75,12 +89,24 @@ plt.close()
 df_nb = pd.DataFrame(modelo_nb.theta_, columns=top5)
 df_nb["Clase"] = modelo_nb.classes_
 
-df_nb.to_csv(ruta_resultado("naive_bayes_modelo_T2.csv"), index=False)
 plt.figure(figsize=(10,5))
 sns.heatmap(df_nb.drop("Clase", axis=1), annot=False)
 plt.title("Parámetros Naive Bayes tarea 2")
 plt.savefig(ruta_resultado("naive_bayes_heatmap_T2.png"))
 plt.close()
 
+priors = pd.DataFrame({
+    "Clase": modelo_nb.classes_,
+    "Prior": modelo_nb.class_prior_
+})
+medias = pd.DataFrame(modelo_nb.theta_, columns=top5)
+medias["Clase"] = modelo_nb.classes_
+varianzas = pd.DataFrame(modelo_nb.var_, columns=top5)
+varianzas["Clase"] = modelo_nb.classes_
+
+with pd.ExcelWriter(ruta_resultado("naive_bayes_modelo2.xlsx")) as writer:
+    priors.to_excel(writer, sheet_name="Priors2", index=False)
+    medias.to_excel(writer, sheet_name="Medias2", index=False)
+    varianzas.to_excel(writer, sheet_name="Varianzas2", index=False)
 # --- Guardar todo en un solo CSV ---
 guardar_resultados(resultados, ruta_resultado("resultados_stress.csv"))
