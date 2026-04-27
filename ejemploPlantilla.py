@@ -11,10 +11,11 @@ from plantilla import (
 )
 
 # --- Cargar y dividir ---
-ruta = r"D:\UTM\DECIMO\reconocimiento_de_patrones\parcial2\proyectoFase2\reconocimientoDePatrones\programas_wesad\wesad_preprocesado_listo.csv"
-X, y = cargar_dataset(ruta, columna_target="Label")
-if 'Subject' in X.columns:
-    X = X.drop(columns=['Subject'])
+ruta = r"./programas_wesad/wesad_preprocesado_listo.csv"
+X, y = cargar_dataset(ruta, columna_target="Label",
+columnas_a_excluir=['Subject', 'Time']
+)
+
 X_tr, X_te, y_tr, y_te = dividir_train_test(X, y)
 
 # Acumulador de métricas
