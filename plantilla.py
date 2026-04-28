@@ -169,8 +169,6 @@ def ranking_informacion_mutua(X, y, random_state=42):
     scores = mutual_info_classif(X, y, random_state=random_state)
     return pd.Series(scores, index=X.columns).sort_values(ascending=False)
 
-import pandas as pd
-import numpy as np
 
 def ranking_fisher(X, y):
     clases = np.unique(y)
