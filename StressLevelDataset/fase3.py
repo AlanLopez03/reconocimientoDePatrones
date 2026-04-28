@@ -13,6 +13,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 def preprocesar_datos(df):
     """
@@ -35,6 +36,51 @@ def preprocesar_datos(df):
     
     # 3. Asegurar que todos los datos sean numéricos para los clasificadores
     return df_limpio.apply(pd.to_numeric)
+
+def graficar_comparativa_matrices(todas_metricas, ruta_salida):
+    """Genera una sola imagen con las 4 matrices de confusión (2x2)."""
+    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    axes = axes.flatten()
+    
+    for i, m in enumerate(todas_metricas):
+        sns.heatmap(m['matriz_confusion'], annot=True, fmt="d", cmap="Blues", ax=axes[i], cbar=False,
+                    xticklabels=['Bajo', 'Medio', 'Alto'], yticklabels=['Bajo', 'Medio', 'Alto'])
+        axes[i].set_title(f"Matriz: {m['modelo']}")
+        axes[i].set_xlabel("Predicho")
+        axes[i].set_ylabel("Real")
+    
+    plt.tight_layout()
+    plt.savefig(ruta_salida, dpi=150)
+    plt.close()
+
+def graficar_comparativa_errores(todas_metricas, ruta_salida):
+    """Genera el gráfico de barras de Accuracy vs Error."""
+    nombres = [m['modelo'] for m in todas_metricas]
+    accs = [m['accuracy'] for m in todas_metricas]
+    errores = [1 - a for a in accs]
+
+    x = np.arange(len(nombres))
+    width = 0.35
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    rects1 = ax.bar(x - width/2, accs, width, label='Accuracy', color='#4CAF50')
+    rects2 = ax.bar(x + width/2, errores, width, label='Error', color='#F44336')
+
+    ax.set_ylabel('Puntaje (0.0 - 1.0)')
+    ax.set_title('Comparativa de Desempeño: Accuracy vs Error')
+    ax.set_xticks(x)
+    ax.set_xticklabels(nombres, rotation=15)
+    ax.legend()
+
+    # Etiquetas de valor sobre las barras
+    for rect in rects1 + rects2:
+        height = rect.get_height()
+        ax.annotate(f'{height:.2f}', xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
+
+    plt.tight_layout()
+    plt.savefig(ruta_salida, dpi=150)
+    plt.close()
 
 # --- INICIO DEL SCRIPT ---
 
@@ -126,5 +172,13 @@ graficar_matriz_confusion(m_tree_top['matriz_confusion'], "Arbol Top IM", ruta_r
 # ---------------------------------------------------------
 # Guardar resumen final en CSV para la comparativa de la presentación
 guardar_resultados(todas_las_metricas, ruta_resultado("comparativa_estres_fase3.csv"))
+
+print("\n--- GENERANDO COMPARATIVAS FINALES ---")
+
+# Generar la imagen única con las 4 matrices
+graficar_comparativa_matrices(todas_las_metricas, ruta_resultado("comparativa_matrices_2x2.png"))
+
+# Generar el gráfico de barras de Accuracy vs Error
+graficar_comparativa_errores(todas_las_metricas, ruta_resultado("grafico_errores_comparativo.png"))
 
 print(f"\n¡Proceso completado! Los resultados están en la carpeta: {ruta_resultado('')}")
